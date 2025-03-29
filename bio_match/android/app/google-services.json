@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "901267600129",
+    "project_id": "thiagopt",
+    "storage_bucket": "thiagopt.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:901267600129:android:f0339f228e7604459e6100",
+        "android_client_info": {
+          "package_name": "com.example.bio_match"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSHsN0Xb57R0DpqQzRFuf0iT3FA8aw5tY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
