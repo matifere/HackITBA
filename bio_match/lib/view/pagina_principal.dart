@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:bio_match/view/agregar_residuos.dart'; // Importa la pantalla de lista de residuos
 import 'package:bio_match/view/notificaciones.dart'; // Importa la pantalla de lista de residuos
 class CategorySelectionScreen extends StatelessWidget {
-  const CategorySelectionScreen({super.key});
+  const CategorySelectionScreen({super.key, required this.username});
+  final String username;
 
   @override
   Widget build(BuildContext context) {
@@ -29,13 +30,14 @@ class CategorySelectionScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: CategorySelectionBody(),
-      bottomNavigationBar: CustomBottomNavBar(selectedIndex: 1,),
+      body: CategorySelectionBody(username: username,),
+      bottomNavigationBar: CustomBottomNavBar(selectedIndex: 1, username: username,),
     );
   }
 }
 class CategorySelectionBody extends StatelessWidget {
-  const CategorySelectionBody({super.key});
+  const CategorySelectionBody({super.key, required this.username});
+  final  String username; // Cambia esto por el nombre de usuario real
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +46,11 @@ class CategorySelectionBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text("Hola $username!", style: TextStyle(
+            fontSize: 24,
+            fontFamily: 'DoppioOne',
+            color: Colors.black87,
+          ),),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(

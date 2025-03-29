@@ -103,7 +103,7 @@ class _InicioSesionState extends State<InicioSesion> {
                 user.sendToFirestore();
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => CategorySelectionScreen(),
+                    builder: (context) => CategorySelectionScreen(username: user.name  ?? "",),
                   ),
                 );
               },

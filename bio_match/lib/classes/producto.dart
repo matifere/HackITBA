@@ -1,3 +1,5 @@
+import 'dart:nativewrappers/_internal/vm/lib/ffi_native_type_patch.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 class Producto {
   String categoria;
@@ -8,6 +10,7 @@ class Producto {
   int cantidad;
   DateTime ingreso;
   DateTime expiracion;
+  double precio;
 
   Producto({
     required this.categoria,
@@ -17,8 +20,13 @@ class Producto {
     required this.nombreDelVendedor,
     required this.cantidad,
     required this.ingreso,
-    required this.expiracion
+    required this.expiracion,
+    required this.precio,
   });
+
+  set precioSetter(double value) {
+    precio = value;
+  }
 
   set categoriaSetter(String value) {
     categoria = value;
@@ -53,6 +61,7 @@ class Producto {
   int get cantidadGetter => cantidad;
   DateTime get ingresoGetter => ingreso;
   DateTime get expiracionGetter => expiracion; 
+  double get precioGetter => precio;
 
   Map<String, dynamic> toMap() {
     return {

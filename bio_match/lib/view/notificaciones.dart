@@ -4,7 +4,8 @@ import 'package:bio_match/view/agregar_residuos.dart'; // Importa la pantalla de
 import 'package:bio_match/view/pagina_principal.dart';
 
 class NotificationsScreen extends StatelessWidget {
-  const NotificationsScreen({super.key});
+  const NotificationsScreen({super.key, required this.username});
+  final String username;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +52,7 @@ class NotificationsScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: CustomBottomNavBar(selectedIndex: 3),
+      bottomNavigationBar: CustomBottomNavBar(selectedIndex: 3, username: username,),
     );
   }
 }
@@ -132,7 +133,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
       // Si el usuario toca el botón "+", navega a la lista de residuos
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => CategorySelectionScreen()),
+        MaterialPageRoute(builder: (context) => CategorySelectionScreen(username: widget.username,)),
       );
     } else {
       setState(() {
@@ -143,7 +144,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
       // Si el usuario toca el botón "+", navega a la lista de residuos
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => WasteListScreen()),
+        MaterialPageRoute(builder: (context) => WasteListScreen(username: widget.username,)),
       );
     } else {
       setState(() {
@@ -154,7 +155,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
       // Si el usuario toca el botón "+", navega a la lista de residuos
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => NotificationsScreen()),
+        MaterialPageRoute(builder: (context) => NotificationsScreen(username: widget.username)),
       );
     } else {
       setState(() {
@@ -162,7 +163,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
       });
     }
     if (index == 0) {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => Mapa()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => Mapa(username: widget.username,)));
     }
   }
 
@@ -193,8 +194,9 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
 }
 
 class CustomBottomNavBar extends StatefulWidget {
-  CustomBottomNavBar({super.key, required this.selectedIndex});
+  CustomBottomNavBar({super.key, required this.selectedIndex, required this.username});
   int selectedIndex;
+  String username;
   @override
   _CustomBottomNavBarState createState() => _CustomBottomNavBarState();
 }

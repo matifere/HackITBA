@@ -1,33 +1,21 @@
+import 'dart:nativewrappers/_internal/vm/lib/ffi_native_type_patch.dart';
+
+import 'package:bio_match/classes/producto.dart';
 import 'package:bio_match/view/notificaciones.dart';
 import 'package:bio_match/view/pagina_principal.dart';
 import 'package:flutter/material.dart';
 
 // Agrega esta clase para manejar los datos de los residuos
-class WasteProduct {
-  final String name;
-  final String description;
-  final DateTime date;
-  final String category;
-  final String precio;
-  final String cantidad;
-
-  WasteProduct({
-    required this.name,
-    required this.description,
-    required this.date,
-    required this.category,
-    required this.precio,
-    required this.cantidad,
-  });
-}
 
 class WasteListScreen extends StatefulWidget {
+  const WasteListScreen({super.key, required this.username});
+  final String username;
   @override
   _WasteListScreenState createState() => _WasteListScreenState();
 }
 
 class _WasteListScreenState extends State<WasteListScreen> {
-  List<WasteProduct> products = [];
+  List<Producto> products = [];
 
   @override
   Widget build(BuildContext context) {
@@ -58,10 +46,10 @@ class _WasteListScreenState extends State<WasteListScreen> {
                   final newProduct = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => WasteRegistrationScreen(),
+                      builder: (context) => WasteRegistrationScreen(name: widget.username,),
                     ),
                   );
-                  
+
                   if (newProduct != null) {
                     setState(() {
                       products.add(newProduct);
@@ -75,13 +63,13 @@ class _WasteListScreenState extends State<WasteListScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: CustomBottomNavBar(selectedIndex: 2,),
+      bottomNavigationBar: CustomBottomNavBar(selectedIndex: 2, username: widget.username,),
     );
   }
 }
 
 class WasteListBody extends StatelessWidget {
-  final List<WasteProduct> products;
+  final List<Producto> products;
 
   const WasteListBody({required this.products});
 
@@ -105,9 +93,9 @@ class WasteListBody extends StatelessWidget {
                     Expanded(
                       child: ListView.builder(
                         itemCount: products.length,
-                        itemBuilder: (context, index) => WasteItemCard(
-                          product: products[index],
-                        ),
+                        itemBuilder:
+                            (context, index) =>
+                                WasteItemCard(product: products[index]),
                       ),
                     ),
                   ],
@@ -122,7 +110,7 @@ class WasteListBody extends StatelessWidget {
 }
 
 class WasteItemCard extends StatelessWidget {
-  final WasteProduct product;
+  final Producto product;
 
   const WasteItemCard({required this.product});
 
@@ -139,7 +127,7 @@ class WasteItemCard extends StatelessWidget {
             color: Colors.grey.withOpacity(0.3),
             spreadRadius: 2,
             blurRadius: 5,
-          )
+          ),
         ],
       ),
       child: Row(
@@ -150,18 +138,13 @@ class WasteItemCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  product.name,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
+                  product.nombre,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 SizedBox(height: 8),
                 Text(
-                  product.description,
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                  ),
+                  product.descripcion,
+                  style: TextStyle(color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -170,25 +153,20 @@ class WasteItemCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                "${product.date.day}/${product.date.month}/${product.date.year}",
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                ),
+                "${product.ingreso.day}/${product.ingreso.month}/${product.ingreso.year}",
+                style: TextStyle(color: Colors.grey[600], fontSize: 12),
               ),
               SizedBox(height: 8),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
+                  // ignore: deprecated_member_use
                   color: Colors.cyan.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  product.category,
-                  style: TextStyle(
-                    color: Colors.cyan[800],
-                    fontSize: 12,
-                  ),
+                  product.categoria,
+                  style: TextStyle(color: Colors.cyan[800], fontSize: 12),
                 ),
               ),
             ],
@@ -206,6 +184,10 @@ class WasteRegistrationScreen extends StatelessWidget {
   final TextEditingController categoryController = TextEditingController();
   final TextEditingController cantidadController = TextEditingController();
   final TextEditingController precioController = TextEditingController();
+
+  WasteRegistrationScreen({super.key, required this.name});
+  final String name;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -226,23 +208,26 @@ class WasteRegistrationScreen extends StatelessWidget {
               controller: categoryController,
               decoration: InputDecoration(labelText: 'Categoría'),
             ),
-             TextField(
+            TextField(
               controller: precioController,
               decoration: InputDecoration(labelText: 'Precio'),
             ),
-             TextField(
+            TextField(
               controller: cantidadController,
               decoration: InputDecoration(labelText: 'Cantidad'),
             ),
             ElevatedButton(
               onPressed: () {
-                final newProduct = WasteProduct(
-                  name: nameController.text,
-                  description: descController.text,
-                  date: DateTime.now(),
-                  category: categoryController.text,
-                  cantidad: cantidadController.text,
-                  precio: precioController.text
+                final newProduct = Producto(
+                  nombreDelVendedor: name,
+                  nombre: nameController.text,
+                  descripcion: descController.text,
+                  ingreso: DateTime.now(),
+                  expiracion: DateTime.now().add(Duration(days: 30)),
+                  categoria: categoryController.text,
+                  cantidad: int.tryParse(cantidadController.text) ?? 0,
+                  precio: 0.0,
+                  direccion: '', // Cambia esto según tu lógica
                 );
                 Navigator.pop(context, newProduct);
               },

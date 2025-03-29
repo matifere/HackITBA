@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:bio_match/view/notificaciones.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -7,7 +8,8 @@ import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
 
 class Mapa extends StatefulWidget {
-  const Mapa({super.key});
+  Mapa({super.key, required this.username});
+  String username;
 
   @override
   State<Mapa> createState() => _MapaState();
@@ -162,7 +164,7 @@ class _MapaState extends State<Mapa> {
           ],
         ),
       ),
-      
+      bottomNavigationBar: CustomBottomNavBar(selectedIndex: 0, username: widget.username,),
       floatingActionButton: FloatingActionButton(
         tooltip: 'Mi ubicación',
         onPressed: _getUserLocation,
