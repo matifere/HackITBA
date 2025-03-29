@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
 class CategorySelectionScreen extends StatelessWidget {
+  const CategorySelectionScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFF0EEF1), // Color del fondo general
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
@@ -30,6 +33,8 @@ class CategorySelectionScreen extends StatelessWidget {
   }
 }
 class CategorySelectionBody extends StatelessWidget {
+  const CategorySelectionBody({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -80,7 +85,7 @@ class CategoryButton extends StatelessWidget {
   final String text;
   final Color color;
 
-  CategoryButton(this.text, this.color);
+  const CategoryButton(this.text, this.color, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -108,6 +113,8 @@ class CategoryButton extends StatelessWidget {
   }
 }
 class CustomBottomNavBar extends StatelessWidget {
+  const CustomBottomNavBar({super.key});
+
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
