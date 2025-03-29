@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:bio_match/view/agregar_residuos.dart'; // Importa la pantalla de lista de residuos
-import 'package:bio_match/view/notificaciones.dart'; // Importa la pantalla de lista de residuos
-class CategorySelectionScreen extends StatelessWidget {
-  const CategorySelectionScreen({super.key});
-
+import 'package:bio_match/view/formulario_residuos.dart'; 
+import 'package:bio_match/view/notificaciones.dart';
+import 'package:bio_match/view/pagina_principal.dart';
+class WasteListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF0EEF1), // Color del fondo general
+      backgroundColor: Color(0xFFF0EEF1),
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
@@ -17,61 +15,53 @@ class CategorySelectionScreen extends StatelessWidget {
           style: TextStyle(
             color: Color.fromARGB(255, 0, 0, 0),
             fontSize: 24,
-            fontFamily: 'DoppioOne',
+            fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: false,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.info_outline, color: Colors.black),
-            onPressed: () {},
-          ),
-        ],
       ),
-      body: CategorySelectionBody(),
-      bottomNavigationBar: CustomBottomNavBar(),
+      body: Stack(
+  children: [
+    WasteListBody(), // Tu pantalla principal
+    Positioned(
+      bottom: 450, // Ajusta según necesites
+      right: 285, // Ajusta según necesites
+      child: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => WasteRegistrationScreen()),
+          );
+        },
+        backgroundColor: Colors.black,
+        child: Icon(Icons.add, color: Colors.white),
+      ),
+    ),
+  ],
+),
     );
   }
 }
-class CategorySelectionBody extends StatelessWidget {
-  const CategorySelectionBody({super.key});
-
+class WasteListBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(16.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              'Selecciona la categoría que te gustaría reutilizar!',
-              style: TextStyle(
-                fontSize: 16,
-                fontFamily: 'DoppioOne',
-                color: Colors.black87,
-              ),
-            ),
-          ),
-          SizedBox(height: 16),
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color:  Color(0xFFD1C6B9),
+                color: Color(0xFFD1C6B9),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Padding(
                 padding: EdgeInsets.all(16),
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
+                child: Column(
                   children: [
-                    CategoryButton('Verduras y frutas', Colors.green),
-                    CategoryButton('Restos de productos animales', Colors.cyan),
-                    CategoryButton('Restos de café', Colors.brown),
-                    CategoryButton('Otros residuos', Colors.green.shade700),
+                    WasteTableHeader(),
+                    SizedBox(height: 16),
+                    // Aquí puedes agregar una lista de residuos en el futuro
                   ],
                 ),
               ),
@@ -82,41 +72,50 @@ class CategorySelectionBody extends StatelessWidget {
     );
   }
 }
-class CategoryButton extends StatelessWidget {
-  final String text;
-  final Color color;
-
-  const CategoryButton(this.text, this.color, {super.key});
-
+class WasteTableHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        // Acción cuando se presiona el botón
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Center(
-          child: Text(
-            text,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white,
-              fontFamily: 'DoppioOne',
-            ),
+    return Container(
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.cyan,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Nombre del residuo',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                'Descripción',
+                style: TextStyle(color: Colors.white),
+              ),
+            ],
           ),
-        ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                'Fecha',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                'Categoría',
+                style: TextStyle(color: Colors.white),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 }
-
 class CustomBottomNavBar extends StatefulWidget {
-  const CustomBottomNavBar({super.key});
-
   @override
   _CustomBottomNavBarState createState() => _CustomBottomNavBarState();
 }
@@ -147,16 +146,12 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
         _selectedIndex = index; // Actualiza el índice seleccionado
       });
     }
-    if (index ==3){
+    if (index == 3) {
       // Si el usuario toca el botón "+", navega a la lista de residuos
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => NotificationsScreen()),
       );
-    } else {
-      setState(() {
-        _selectedIndex = index; // Actualiza el índice seleccionado
-      });
     }
   }
 
@@ -189,8 +184,4 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
         ),
       ],
     );
-  }
-}
-
-
-
+  }}
