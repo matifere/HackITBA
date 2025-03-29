@@ -82,7 +82,24 @@ class _InicioSesionState extends State<InicioSesion> {
                 ),
               ),
               onPressed: () {
-                
+                if(user.name == "" || user.dir == "" || user.name == " " || user.dir == " ") {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Error'),
+                      content: const Text('Por favor, completa todos los campos.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('Aceptar'),
+                        ),
+                      ],
+                    ),
+                  );
+                  return;
+                }
                 user.sendToFirestore();
                 Navigator.of(context).push(
                   MaterialPageRoute(

@@ -22,7 +22,7 @@ class User {
   User(this.name, this.dir);
 
   sendToFirestore() async {
-    print("Enviando a Firestore");
+    
     CollectionReference users = FirebaseFirestore.instance.collection('users');
     await users.doc(name).set({'name': name, 'dir': dir});
   }
