@@ -1,3 +1,4 @@
+import 'package:bio_match/view/mapa.dart';
 import 'package:flutter/material.dart';
 import 'package:bio_match/view/agregar_residuos.dart'; // Importa la pantalla de lista de residuos
 import 'package:bio_match/view/pagina_principal.dart';
@@ -149,6 +150,12 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
       setState(() {
         _selectedIndex = index; // Actualiza el índice seleccionado
       });
+    }
+    if(index == 0){
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => Mapa()),
+      );
     }
   }
 

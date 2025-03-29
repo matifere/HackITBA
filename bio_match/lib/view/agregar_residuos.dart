@@ -1,3 +1,5 @@
+import 'package:bio_match/view/notificaciones.dart';
+import 'package:bio_match/view/pagina_principal.dart';
 import 'package:flutter/material.dart';
 
 // Agrega esta clase para manejar los datos de los residuos
@@ -43,30 +45,33 @@ class _WasteListScreenState extends State<WasteListScreen> {
       body: Stack(
         children: [
           WasteListBody(products: products),
-          Positioned(
-            bottom: 450,
-            right: 285,
-            child: FloatingActionButton(
-              onPressed: () async {
-                final newProduct = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => WasteRegistrationScreen(),
-                  ),
-                );
-                
-                if (newProduct != null) {
-                  setState(() {
-                    products.add(newProduct);
-                  });
-                }
-              },
-              backgroundColor: Colors.black,
-              child: Icon(Icons.add, color: Colors.white),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: FloatingActionButton(
+                onPressed: () async {
+                  final newProduct = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => WasteRegistrationScreen(),
+                    ),
+                  );
+                  
+                  if (newProduct != null) {
+                    setState(() {
+                      products.add(newProduct);
+                    });
+                  }
+                },
+                backgroundColor: Colors.black,
+                child: Icon(Icons.add, color: Colors.white),
+              ),
             ),
           ),
         ],
       ),
+      bottomNavigationBar: CustomBottomNavBar(),
     );
   }
 }
