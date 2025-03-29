@@ -1,5 +1,5 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Producto {
   String categoria;
   String nombre;
@@ -30,25 +30,32 @@ class Producto {
   set categoriaSetter(String value) {
     categoria = value;
   }
+
   set nombreSetter(String value) {
     nombre = value;
   }
+
   set descripcionSetter(String value) {
     descripcion = value;
   }
+
   set direccionSetter(String value) {
     direccion = value;
   }
+
   set nombreDelVendedorSetter(String value) {
     nombreDelVendedor = value;
   }
+
   set cantidadSetter(int value) {
     cantidad = value;
   }
-  set ingresoSetter(DateTime value){
+
+  set ingresoSetter(DateTime value) {
     ingreso = value;
   }
-  set expiracionSetter(DateTime value){
+
+  set expiracionSetter(DateTime value) {
     expiracion = value;
   }
 
@@ -59,7 +66,7 @@ class Producto {
   String get nombreDelVendedorGetter => nombreDelVendedor;
   int get cantidadGetter => cantidad;
   DateTime get ingresoGetter => ingreso;
-  DateTime get expiracionGetter => expiracion; 
+  DateTime get expiracionGetter => expiracion;
   double get precioGetter => precio;
 
   Map<String, dynamic> toMap() {
@@ -70,24 +77,36 @@ class Producto {
       'direccion': direccion,
       'nombreDelVendedor': nombreDelVendedor,
       'cantidad': cantidad,
-      'ingreso' : ingreso,
-      'expiracion' : expiracion,
-      'precio' : precio,
+      'ingreso': Timestamp.fromDate(ingreso), // Conversión clave
+      'expiracion': Timestamp.fromDate(expiracion),
+      'precio': precio,
     };
   }
 
-  void sendToFirestore(){
-    FirebaseFirestore.instance.collection('productos').add(toMap()).then((value) {
-      print("Producto agregado con ID: ${value.id}");
-    }).catchError((error) {
-      print("Error al agregar producto: $error");
-    });
+  Future<void> sendToFirestore() async {
+    try {
+      if (precio <= 0) throw Exception("Precio no válido");
+
+      DocumentReference docRef = await FirebaseFirestore.instance
+          .collection('productos')
+          .add(toMap());
+      print("Documento ID: ${docRef.id}");
+    } catch (e) {
+      print("Error en Firestore: $e");
+      throw e; // Propaga el error para manejo en UI
+    }
   }
+
   void getFromFirestore(String nombreDelVendedor, String nombre) async {
     //obtiene la referencia a un producto en la base de datos donde tiene el mismo nombre y vendedor
-    DocumentSnapshot snapshot = await FirebaseFirestore.instance.collection('productos').where('nombreDelVendedor', isEqualTo: nombreDelVendedor).where('nombre', isEqualTo: nombre).get().then((value) {
-      return value.docs.first;
-    });
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance
+        .collection('productos')
+        .where('nombreDelVendedor', isEqualTo: nombreDelVendedor)
+        .where('nombre', isEqualTo: nombre)
+        .get()
+        .then((value) {
+          return value.docs.first;
+        });
+    print(nombreDelVendedor);
   }
-  
 }
