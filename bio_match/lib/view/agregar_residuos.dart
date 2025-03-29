@@ -1,8 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:bio_match/view/formulario_residuos.dart'; 
-import 'package:bio_match/view/notificaciones.dart';
-import 'package:bio_match/view/pagina_principal.dart';
-class WasteListScreen extends StatelessWidget {
+
+// Agrega esta clase para manejar los datos de los residuos
+class WasteProduct {
+  final String name;
+  final String description;
+  final DateTime date;
+  final String category;
+
+  WasteProduct({
+    required this.name,
+    required this.description,
+    required this.date,
+    required this.category,
+  });
+}
+
+class WasteListScreen extends StatefulWidget {
+  @override
+  _WasteListScreenState createState() => _WasteListScreenState();
+}
+
+class _WasteListScreenState extends State<WasteListScreen> {
+  List<WasteProduct> products = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,28 +41,41 @@ class WasteListScreen extends StatelessWidget {
         centerTitle: false,
       ),
       body: Stack(
-  children: [
-    WasteListBody(), // Tu pantalla principal
-    Positioned(
-      bottom: 450, // Ajusta según necesites
-      right: 285, // Ajusta según necesites
-      child: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => WasteRegistrationScreen()),
-          );
-        },
-        backgroundColor: Colors.black,
-        child: Icon(Icons.add, color: Colors.white),
+        children: [
+          WasteListBody(products: products),
+          Positioned(
+            bottom: 450,
+            right: 285,
+            child: FloatingActionButton(
+              onPressed: () async {
+                final newProduct = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => WasteRegistrationScreen(),
+                  ),
+                );
+                
+                if (newProduct != null) {
+                  setState(() {
+                    products.add(newProduct);
+                  });
+                }
+              },
+              backgroundColor: Colors.black,
+              child: Icon(Icons.add, color: Colors.white),
+            ),
+          ),
+        ],
       ),
-    ),
-  ],
-),
     );
   }
 }
+
 class WasteListBody extends StatelessWidget {
+  final List<WasteProduct> products;
+
+  const WasteListBody({required this.products});
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -59,9 +92,15 @@ class WasteListBody extends StatelessWidget {
                 padding: EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    WasteTableHeader(),
                     SizedBox(height: 16),
-                    // Aquí puedes agregar una lista de residuos en el futuro
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: products.length,
+                        itemBuilder: (context, index) => WasteItemCard(
+                          product: products[index],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -72,41 +111,76 @@ class WasteListBody extends StatelessWidget {
     );
   }
 }
-class WasteTableHeader extends StatelessWidget {
+
+class WasteItemCard extends StatelessWidget {
+  final WasteProduct product;
+
+  const WasteItemCard({required this.product});
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(12),
+      margin: EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.cyan,
-        borderRadius: BorderRadius.circular(16),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            spreadRadius: 2,
+            blurRadius: 5,
+          )
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Nombre del residuo',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                'Descripción',
-                style: TextStyle(color: Colors.white),
-              ),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  product.name,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  product.description,
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                'Fecha',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                "${product.date.day}/${product.date.month}/${product.date.year}",
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 12,
+                ),
               ),
-              Text(
-                'Categoría',
-                style: TextStyle(color: Colors.white),
+              SizedBox(height: 8),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.cyan.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  product.category,
+                  style: TextStyle(
+                    color: Colors.cyan[800],
+                    fontSize: 12,
+                  ),
+                ),
               ),
             ],
           ),
@@ -115,73 +189,50 @@ class WasteTableHeader extends StatelessWidget {
     );
   }
 }
-class CustomBottomNavBar extends StatefulWidget {
-  @override
-  _CustomBottomNavBarState createState() => _CustomBottomNavBarState();
-}
 
-class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
-  int _selectedIndex = 1; // Índice inicial (pantalla principal)
-
-  void _onItemTapped(int index) {
-    if (index == 1) {
-      // Si el usuario toca el botón "+", navega a la lista de residuos
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => CategorySelectionScreen()),
-      );
-    } else {
-      setState(() {
-        _selectedIndex = index; // Actualiza el índice seleccionado
-      });
-    }
-    if (index == 2) {
-      // Si el usuario toca el botón "+", navega a la lista de residuos
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => WasteListScreen()),
-      );
-    } else {
-      setState(() {
-        _selectedIndex = index; // Actualiza el índice seleccionado
-      });
-    }
-    if (index == 3) {
-      // Si el usuario toca el botón "+", navega a la lista de residuos
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => NotificationsScreen()),
-      );
-    }
-  }
+// Modifica tu WasteRegistrationScreen para que devuelva un WasteProduct
+class WasteRegistrationScreen extends StatelessWidget {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController descController = TextEditingController();
+  final TextEditingController categoryController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: _selectedIndex,
-      backgroundColor: Colors.white,
-      selectedItemColor: const Color.fromARGB(255, 101, 180, 172),
-      unselectedItemColor: Colors.grey,
-      showSelectedLabels: false,
-      showUnselectedLabels: false,
-      onTap: _onItemTapped, // Maneja la navegación
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.location_on_outlined),
-          label: '',
+    return Scaffold(
+      appBar: AppBar(title: Text('Agregar Residuo')),
+      body: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: InputDecoration(labelText: 'Nombre del residuo'),
+            ),
+            TextField(
+              controller: descController,
+              decoration: InputDecoration(labelText: 'Descripción'),
+            ),
+            TextField(
+              controller: categoryController,
+              decoration: InputDecoration(labelText: 'Categoría'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final newProduct = WasteProduct(
+                  name: nameController.text,
+                  description: descController.text,
+                  date: DateTime.now(),
+                  category: categoryController.text,
+                );
+                Navigator.pop(context, newProduct);
+              },
+              child: Text('Guardar'),
+            ),
+          ],
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home_outlined),
-          label: '',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.add),
-          label: '',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.notifications_outlined),
-          label: '',
-        ),
-      ],
+      ),
     );
-  }}
+  }
+}
+
+// Mantén el resto de las clases (CustomBottomNavBar, WasteTableHeader) igual
