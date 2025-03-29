@@ -79,7 +79,7 @@ class _IntroState extends State<Intro> {
                       ),
                     ),
                     FilledButton(onPressed: (){
-                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => PaginaPrincipal()));
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => CategorySelectionScreen()));
                     },
                     style: ButtonStyle(
                       backgroundColor: WidgetStateProperty.all<Color>(

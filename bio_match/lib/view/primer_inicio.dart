@@ -1,5 +1,4 @@
 import 'package:bio_match/view/intro.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class PrimerInicio extends StatefulWidget {
