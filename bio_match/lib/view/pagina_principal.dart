@@ -30,7 +30,7 @@ class CategorySelectionScreen extends StatelessWidget {
         ],
       ),
       body: CategorySelectionBody(),
-      bottomNavigationBar: CustomBottomNavBar(),
+      bottomNavigationBar: CustomBottomNavBar(selectedIndex: 1,),
     );
   }
 }

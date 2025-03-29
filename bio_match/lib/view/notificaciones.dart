@@ -2,6 +2,7 @@ import 'package:bio_match/view/mapa.dart';
 import 'package:flutter/material.dart';
 import 'package:bio_match/view/agregar_residuos.dart'; // Importa la pantalla de lista de residuos
 import 'package:bio_match/view/pagina_principal.dart';
+
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
 
@@ -11,7 +12,11 @@ class NotificationsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'BioMatch',
-          style: TextStyle(color: Colors.teal, fontSize: 24, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Colors.teal,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         backgroundColor: Colors.white,
         elevation: 0,
@@ -26,14 +31,16 @@ class NotificationsScreen extends StatelessWidget {
                 children: const [
                   NotificationCard(
                     title: 'Nuevo residuo disponible!',
-                    message: 'Buscabas verduras? Mira las nuevas publicaciones disponibles.',
+                    message:
+                        'Buscabas verduras? Mira las nuevas publicaciones disponibles.',
                     buttonText: 'Buscar',
                     color: Colors.greenAccent,
                   ),
                   SizedBox(height: 12),
                   NotificationCard(
                     title: '¡Ya retiraron tus residuos!',
-                    message: 'Un usuario notificó que ya retiró tus residuos. Si es así, ¡ya podés eliminar la publicación!',
+                    message:
+                        'Un usuario notificó que ya retiró tus residuos. Si es así, ¡ya podés eliminar la publicación!',
                     buttonText: 'Eliminar publicación',
                     color: Colors.white,
                     textColor: Colors.black,
@@ -44,7 +51,7 @@ class NotificationsScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: CustomBottomNavBar(),
+      bottomNavigationBar: CustomBottomNavBar(selectedIndex: 3),
     );
   }
 }
@@ -83,28 +90,31 @@ class NotificationCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textColor),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
                 ),
               ),
               IconButton(
                 icon: const Icon(Icons.close),
                 color: Colors.black54,
                 onPressed: () {},
-              )
+              ),
             ],
           ),
           const SizedBox(height: 8),
-          Text(
-            message,
-            style: TextStyle(fontSize: 14, color: textColor),
-          ),
+          Text(message, style: TextStyle(fontSize: 14, color: textColor)),
           const SizedBox(height: 8),
           ElevatedButton(
             onPressed: () {},
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.black,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             child: Text(buttonText),
           ),
@@ -115,10 +125,10 @@ class NotificationCard extends StatelessWidget {
 }
 
 class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
-  int _selectedIndex = 1; // Índice inicial (pantalla principal)
+  // Índice inicial (pantalla principal)
 
   void _onItemTapped(int index) {
-     if (index == 1) {
+    if (index == 1) {
       // Si el usuario toca el botón "+", navega a la lista de residuos
       Navigator.push(
         context,
@@ -126,7 +136,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
       );
     } else {
       setState(() {
-        _selectedIndex = index; // Actualiza el índice seleccionado
+        widget.selectedIndex = index; // Actualiza el índice seleccionado
       });
     }
     if (index == 2) {
@@ -137,10 +147,10 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
       );
     } else {
       setState(() {
-        _selectedIndex = index; // Actualiza el índice seleccionado
+        widget.selectedIndex = index; // Actualiza el índice seleccionado
       });
     }
-    if (index ==3){
+    if (index == 3) {
       // Si el usuario toca el botón "+", navega a la lista de residuos
       Navigator.push(
         context,
@@ -148,21 +158,18 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
       );
     } else {
       setState(() {
-        _selectedIndex = index; // Actualiza el índice seleccionado
+        widget.selectedIndex = index; // Actualiza el índice seleccionado
       });
     }
-    if(index == 0){
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => Mapa()),
-      );
+    if (index == 0) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => Mapa()));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      currentIndex: _selectedIndex,
+      currentIndex: widget.selectedIndex,
       backgroundColor: Colors.white,
       selectedItemColor: const Color.fromARGB(255, 101, 180, 172),
       unselectedItemColor: Colors.grey,
@@ -174,14 +181,8 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
           icon: Icon(Icons.location_on_outlined),
           label: '',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home_outlined),
-          label: '',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.add),
-          label: '',
-        ),
+        BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: ''),
+        BottomNavigationBarItem(icon: Icon(Icons.add), label: ''),
         BottomNavigationBarItem(
           icon: Icon(Icons.notifications_outlined),
           label: '',
@@ -189,10 +190,11 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
       ],
     );
   }
-  
-  }
-  
-  class CustomBottomNavBar extends StatefulWidget {
-    @override
-    _CustomBottomNavBarState createState() => _CustomBottomNavBarState();
-  }
+}
+
+class CustomBottomNavBar extends StatefulWidget {
+  CustomBottomNavBar({super.key, required this.selectedIndex});
+  int selectedIndex;
+  @override
+  _CustomBottomNavBarState createState() => _CustomBottomNavBarState();
+}

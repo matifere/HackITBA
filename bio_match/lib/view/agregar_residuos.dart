@@ -71,7 +71,7 @@ class _WasteListScreenState extends State<WasteListScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: CustomBottomNavBar(),
+      bottomNavigationBar: CustomBottomNavBar(selectedIndex: 2,),
     );
   }
 }

@@ -164,7 +164,7 @@ class _MapaState extends State<Mapa> {
           ],
         ),
       ),
-      bottomNavigationBar: CustomBottomNavBar(),
+      bottomNavigationBar: CustomBottomNavBar(selectedIndex: 0,),
       floatingActionButton: FloatingActionButton(
         tooltip: 'Mi ubicación',
         onPressed: _getUserLocation,
