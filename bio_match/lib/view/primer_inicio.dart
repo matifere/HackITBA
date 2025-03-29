@@ -12,13 +12,13 @@ class _PrimerInicioState extends State<PrimerInicio> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       body: GestureDetector(
         onTap: () {
-          Navigator.pushNamed(context, '/login');
+          print("tap");
         },
         child: Center(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text('BioMatch', 
                   style: TextStyle(
@@ -29,6 +29,7 @@ class _PrimerInicioState extends State<PrimerInicio> {
           ),
         ),
       ),
+      
     );
   }
 }
