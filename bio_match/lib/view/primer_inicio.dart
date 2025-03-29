@@ -1,13 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class PrimerInicios extends StatelessWidget {
-  const PrimerInicios({super.key});
+
+class PrimerInicio extends StatelessWidget {
+  const PrimerInicio({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Primer Inicio'),
+        title: const Text('Primer Inicio', style: TextStyle(),),
       ),
       body: Center(
         child: Column(
@@ -18,7 +20,15 @@ class PrimerInicios extends StatelessWidget {
               onPressed: () {
                 // Acción al presionar el botón
               },
-              child: const Text('Comenzar'),
+              child: StreamBuilder<DocumentSnapshot>(
+                stream: FirebaseFirestore.instance.collection('wasa').doc('wasa').snapshots(),
+                builder: (context, snapshot) {
+                  return Text(
+                    snapshot.hasData ? '¡Hola, ${snapshot.data!.get('wasa')}!' : 'Cargando...',
+                    style: const TextStyle(fontSize: 20),
+                  );	
+                }
+              ),
             ),
           ],
         ),
