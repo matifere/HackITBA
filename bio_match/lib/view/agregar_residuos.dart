@@ -8,12 +8,16 @@ class WasteProduct {
   final String description;
   final DateTime date;
   final String category;
+  final String precio;
+  final String cantidad;
 
   WasteProduct({
     required this.name,
     required this.description,
     required this.date,
     required this.category,
+    required this.precio,
+    required this.cantidad,
   });
 }
 
@@ -28,7 +32,7 @@ class _WasteListScreenState extends State<WasteListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF0EEF1),
+      backgroundColor: Color.fromARGB(255, 238, 241, 240),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -200,7 +204,8 @@ class WasteRegistrationScreen extends StatelessWidget {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descController = TextEditingController();
   final TextEditingController categoryController = TextEditingController();
-
+  final TextEditingController cantidadController = TextEditingController();
+  final TextEditingController precioController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -221,6 +226,14 @@ class WasteRegistrationScreen extends StatelessWidget {
               controller: categoryController,
               decoration: InputDecoration(labelText: 'Categoría'),
             ),
+             TextField(
+              controller: precioController,
+              decoration: InputDecoration(labelText: 'Precio'),
+            ),
+             TextField(
+              controller: cantidadController,
+              decoration: InputDecoration(labelText: 'Cantidad'),
+            ),
             ElevatedButton(
               onPressed: () {
                 final newProduct = WasteProduct(
@@ -228,6 +241,8 @@ class WasteRegistrationScreen extends StatelessWidget {
                   description: descController.text,
                   date: DateTime.now(),
                   category: categoryController.text,
+                  cantidad: cantidadController.text,
+                  precio: precioController.text
                 );
                 Navigator.pop(context, newProduct);
               },

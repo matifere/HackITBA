@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:bio_match/view/notificaciones.dart';
-import 'package:bio_match/view/pagina_principal.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -164,7 +162,7 @@ class _MapaState extends State<Mapa> {
           ],
         ),
       ),
-      bottomNavigationBar: CustomBottomNavBar(selectedIndex: 0,),
+      
       floatingActionButton: FloatingActionButton(
         tooltip: 'Mi ubicación',
         onPressed: _getUserLocation,

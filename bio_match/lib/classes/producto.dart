@@ -6,6 +6,8 @@ class Producto {
   String direccion;
   String nombreDelVendedor;
   int cantidad;
+  DateTime ingreso;
+  DateTime expiracion;
 
   Producto({
     required this.categoria,
@@ -14,6 +16,8 @@ class Producto {
     required this.direccion,
     required this.nombreDelVendedor,
     required this.cantidad,
+    required this.ingreso,
+    required this.expiracion
   });
 
   set categoriaSetter(String value) {
@@ -34,13 +38,22 @@ class Producto {
   set cantidadSetter(int value) {
     cantidad = value;
   }
+  set ingresoSetter(DateTime value){
+    ingreso = value;
+  }
+  set expiracionSetter(DateTime value){
+    expiracion = value;
+  }
+
   String get categoriaGetter => categoria;
   String get nombreGetter => nombre;
   String get descripcionGetter => descripcion;
   String get direccionGetter => direccion;
   String get nombreDelVendedorGetter => nombreDelVendedor;
   int get cantidadGetter => cantidad;
-  
+  DateTime get ingresoGetter => ingreso;
+  DateTime get expiracionGetter => expiracion; 
+
   Map<String, dynamic> toMap() {
     return {
       'categoria': categoria,
@@ -49,6 +62,8 @@ class Producto {
       'direccion': direccion,
       'nombreDelVendedor': nombreDelVendedor,
       'cantidad': cantidad,
+      'ingreso' : ingreso,
+      'expiracion' : expiracion
     };
   }
 
