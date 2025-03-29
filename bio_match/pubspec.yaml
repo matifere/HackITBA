@@ -21,5 +21,9 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/  # Add this line to include the images folder
-    - assets/fonts/   # Add this line to include the fonts folder
+  fonts:
+    - family: DoppioOne
+      fonts:
+        - asset: assets/fonts/DoppioOne-Regular.ttf
+        
     
