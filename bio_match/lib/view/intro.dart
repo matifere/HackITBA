@@ -1,3 +1,4 @@
+import 'package:bio_match/view/inicio_sesion.dart';
 import 'package:bio_match/view/pagina_principal.dart';
 import 'package:flutter/material.dart';
 
@@ -79,7 +80,7 @@ class _IntroState extends State<Intro> {
                       ),
                     ),
                     FilledButton(onPressed: (){
-                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => CategorySelectionScreen()));
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => InicioSesion()));
                     },
                     style: ButtonStyle(
                       backgroundColor: WidgetStateProperty.all<Color>(
