@@ -22,10 +22,12 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/  # Add this line to include the images folder
+    - assets/images/trash.png
+    - assets/images/hands.png
   fonts:
     - family: DoppioOne
       fonts:
         - asset: assets/fonts/DoppioOne-Regular.ttf
+
         
     
