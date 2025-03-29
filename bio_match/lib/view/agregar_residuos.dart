@@ -1,4 +1,3 @@
-
 import 'package:bio_match/classes/producto.dart';
 import 'package:bio_match/view/notificaciones.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +8,7 @@ class WasteListScreen extends StatefulWidget {
   const WasteListScreen({super.key, required this.username});
   final String username;
   @override
+  // ignore: library_private_types_in_public_api
   _WasteListScreenState createState() => _WasteListScreenState();
 }
 
@@ -44,7 +44,9 @@ class _WasteListScreenState extends State<WasteListScreen> {
                   final newProduct = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => WasteRegistrationScreen(name: widget.username,),
+                      builder:
+                          (context) =>
+                              WasteRegistrationScreen(name: widget.username),
                     ),
                   );
 
@@ -61,7 +63,10 @@ class _WasteListScreenState extends State<WasteListScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: CustomBottomNavBar(selectedIndex: 2, username: widget.username,),
+      bottomNavigationBar: CustomBottomNavBar(
+        selectedIndex: 2,
+        username: widget.username,
+      ),
     );
   }
 }
@@ -69,7 +74,7 @@ class _WasteListScreenState extends State<WasteListScreen> {
 class WasteListBody extends StatelessWidget {
   final List<Producto> products;
 
-  const WasteListBody({required this.products});
+  const WasteListBody({super.key, required this.products});
 
   @override
   Widget build(BuildContext context) {
@@ -202,32 +207,65 @@ class WasteRegistrationScreen extends StatelessWidget {
               controller: descController,
               decoration: InputDecoration(labelText: 'Descripción'),
             ),
-            TextField(
-              controller: categoryController,
-              decoration: InputDecoration(labelText: 'Categoría'),
+            DropdownButtonFormField(
+              items: [
+                DropdownMenuItem(child: Text('Verduras'), value: 'Verduras'),
+                DropdownMenuItem(
+                  child: Text('Restos animales'),
+                  value: 'Restos animales',
+                ),
+                DropdownMenuItem(
+                  child: Text('Restos de café'),
+                  value: 'Restos de café',
+                ),
+              ],
+              onChanged: (value) {
+                categoryController.text = value.toString();
+                print(categoryController.text);
+              },
+
+              hint: Text("Categoria"),
             ),
-            TextField(
-              controller: precioController,
-              decoration: InputDecoration(labelText: 'Precio'),
-            ),
+
             TextField(
               controller: cantidadController,
-              decoration: InputDecoration(labelText: 'Cantidad'),
+              decoration: InputDecoration(labelText: 'Cantidad (en Kg)'),
             ),
             ElevatedButton(
-              onPressed: () {
-                final newProduct = Producto(
-                  nombreDelVendedor: name,
-                  nombre: nameController.text,
-                  descripcion: descController.text,
-                  ingreso: DateTime.now(),
-                  expiracion: DateTime.now().add(Duration(days: 30)),
-                  categoria: categoryController.text,
-                  cantidad: int.tryParse(cantidadController.text) ?? 0,
-                  precio: 0.0,
-                  direccion: '', // Cambia esto según tu lógica
-                );
-                Navigator.pop(context, newProduct);
+              onPressed: () async {
+                // Añade async aquí
+                if (categoryController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Selecciona una categoría')),
+                  );
+                  return;
+                }
+
+                try {
+                  final newProduct = Producto(
+                    nombreDelVendedor: name,
+                    nombre: nameController.text,
+                    descripcion: descController.text,
+                    ingreso: DateTime.now(),
+                    expiracion: DateTime.now().add(Duration(days: 1)),
+                    categoria: categoryController.text,
+                    cantidad: int.tryParse(cantidadController.text) ?? 0,
+                    precio: // Cambia esto por el valor real
+                        categoryController.text == 'Verduras'
+                            ? 596.0
+                            : categoryController.text == 'Restos animales'
+                            ? 330.0
+                            : 0.0,
+                    direccion: 'una dire',
+                  ); // Tus parámetros actuales
+
+                  await newProduct.sendToFirestore(); // Añade await aquí
+                  Navigator.pop(context, newProduct);
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error al guardar: $e')),
+                  );
+                }
               },
               child: Text('Guardar'),
             ),
