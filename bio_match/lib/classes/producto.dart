@@ -1,4 +1,3 @@
-import 'dart:nativewrappers/_internal/vm/lib/ffi_native_type_patch.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 class Producto {
@@ -72,7 +71,8 @@ class Producto {
       'nombreDelVendedor': nombreDelVendedor,
       'cantidad': cantidad,
       'ingreso' : ingreso,
-      'expiracion' : expiracion
+      'expiracion' : expiracion,
+      'precio' : precio,
     };
   }
 

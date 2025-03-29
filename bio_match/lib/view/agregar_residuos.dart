@@ -1,8 +1,6 @@
-import 'dart:nativewrappers/_internal/vm/lib/ffi_native_type_patch.dart';
 
 import 'package:bio_match/classes/producto.dart';
 import 'package:bio_match/view/notificaciones.dart';
-import 'package:bio_match/view/pagina_principal.dart';
 import 'package:flutter/material.dart';
 
 // Agrega esta clase para manejar los datos de los residuos
