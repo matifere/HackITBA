@@ -4,6 +4,7 @@ import 'package:bio_match/view/notificaciones.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
 
@@ -28,25 +29,107 @@ class _MapaState extends State<Mapa> {
   String _sessionToken = const Uuid().v4();
   bool _isLoading = false;
 
+  // Elige el color que quieras para los marcadores aquí
+  Color _markerColor = Colors.green;  // Puedes cambiar este valor
+
   static const String _placesApiKey = 'AIzaSyCmJaeIx_WlTXasB0MHULv6TGPYE5C4trY';
-  static const String _placesBaseUrl = 
-    'https://maps.googleapis.com/maps/api/place';
+  static const String _placesBaseUrl =
+      'https://maps.googleapis.com/maps/api/place';
 
   @override
   void initState() {
     super.initState();
-    _addInitialMarker();
+    _addProductMarkers();
     _getUserLocation();
+
+    // Escuchar cambios en la colección de productos
+    FirebaseFirestore.instance
+        .collection('productos')
+        .snapshots() // Escucha en tiempo real
+        .listen((snapshot) {
+      // Cuando hay un cambio, recargar los marcadores
+      _addProductMarkers();
+    });
   }
 
-  void _addInitialMarker() {
-    _markers.add(
-      const Marker(
-        markerId: MarkerId('initial'),
-        position: LatLng(-34.602536503444846, -58.411559814725344),
-        infoWindow: InfoWindow(title: "Ubicación inicial"),
-      ),
-    );
+  Future<List<Map<String, dynamic>>> obtenerProductos() async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('productos')
+        .get();
+    return querySnapshot.docs
+        .map((doc) => doc.data() as Map<String, dynamic>)
+        .toList();
+  }
+
+  LatLng _parseLatLng(String coordenadas) {
+    try {
+      String cleanStr = coordenadas.replaceAll('LatLng(', '').replaceAll(')', '');
+      List<String> partes = cleanStr.split(',');
+      double lat = double.parse(partes[0].trim());
+      double lng = double.parse(partes[1].trim());
+
+      return LatLng(lat, lng);
+    } catch (e) {
+      throw FormatException('Formato inválido: $coordenadas');
+    }
+  }
+
+  Future<void> _addProductMarkers() async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('productos')
+          .get();
+
+      // Limpia los marcadores actuales antes de agregar los nuevos
+      setState(() {
+        _markers.clear();
+      });
+
+      for (var doc in querySnapshot.docs) {
+        final data = doc.data() as Map<String, dynamic>;
+        if (data.containsKey('direccion')) {
+          final String coordenadas = data['direccion'];
+          final String categoria = data['categoria'];
+          try {
+            LatLng position = _parseLatLng(coordenadas);
+
+            setState(() {
+              _markers.add(
+                Marker(
+                  onTap: () {
+                    showAboutDialog(context: context, )
+                  },
+                  markerId: MarkerId(doc.id),
+                  position: position,
+                  infoWindow: InfoWindow(
+                    title: data['name'] ?? 'Producto sin nombre',
+                    snippet: data['descripcion'] ?? 'Sin descripción',
+                  ),
+                  icon: BitmapDescriptor.defaultMarkerWithHue(
+                      _getHueFromColor(categoria)),
+                ),
+              );
+            });
+          } catch (e) {
+            print('Error con documento ${doc.id}: $e');
+          }
+        }
+      }
+    } catch (e) {
+      _showErrorSnackbar('Error cargando productos: ${e.toString()}');
+    }
+  }
+
+  double _getHueFromColor(String categoria) {
+    // Convertir el color a un valor de matiz para Google Maps
+    if (categoria == "Restos animales") {
+      return BitmapDescriptor.hueRose;
+    } else if (categoria == "Verduras") {
+      return BitmapDescriptor.hueGreen;
+    } else if (categoria == "Restos de café") {
+      return BitmapDescriptor.hueOrange;
+    }
+    return BitmapDescriptor.hueRed;
   }
 
   Future<void> _getUserLocation() async {
@@ -75,6 +158,8 @@ class _MapaState extends State<Mapa> {
           markerId: const MarkerId('current_location'),
           position: LatLng(position.latitude, position.longitude),
           infoWindow: const InfoWindow(title: "Tu posición actual"),
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+              _getHueFromColor("messi")),
         ),
       );
     });
@@ -82,9 +167,9 @@ class _MapaState extends State<Mapa> {
 
   Future<void> _searchLocation(String input) async {
     if (input.isEmpty) return;
-    
+
     setState(() => _isLoading = true);
-    
+
     try {
       final places = await _fetchPlaces(input);
       if (places.isNotEmpty) {
@@ -99,9 +184,8 @@ class _MapaState extends State<Mapa> {
 
   Future<List<dynamic>> _fetchPlaces(String input) async {
     final response = await http.get(Uri.parse(
-      '$_placesBaseUrl/autocomplete/json?'
-      'input=$input&key=$_placesApiKey&sessiontoken=$_sessionToken'
-    ));
+        '$_placesBaseUrl/autocomplete/json?'
+        'input=$input&key=$_placesApiKey&sessiontoken=$_sessionToken'));
 
     return jsonDecode(response.body)['predictions'] ?? [];
   }
@@ -117,6 +201,8 @@ class _MapaState extends State<Mapa> {
           markerId: MarkerId(placeId),
           position: latLng,
           infoWindow: InfoWindow(title: details['name']),
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+              _getHueFromColor("Verdura")),
         ),
       );
     });
@@ -127,9 +213,8 @@ class _MapaState extends State<Mapa> {
 
   Future<Map<String, dynamic>> _getPlaceDetails(String placeId) async {
     final response = await http.get(Uri.parse(
-      '$_placesBaseUrl/details/json?'
-      'place_id=$placeId&key=$_placesApiKey'
-    ));
+        '$_placesBaseUrl/details/json?'
+        'place_id=$placeId&key=$_placesApiKey'));
 
     return jsonDecode(response.body)['result'];
   }
@@ -164,7 +249,7 @@ class _MapaState extends State<Mapa> {
           ],
         ),
       ),
-      bottomNavigationBar: CustomBottomNavBar(selectedIndex: 0, username: widget.username,),
+      bottomNavigationBar: CustomBottomNavBar(selectedIndex: 0, username: widget.username),
       floatingActionButton: FloatingActionButton(
         tooltip: 'Mi ubicación',
         onPressed: _getUserLocation,
