@@ -1,9 +1,8 @@
 import 'package:bio_match/classes/producto.dart';
 import 'package:bio_match/classes/user.dart';
 import 'package:bio_match/view/notificaciones.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
-// Agrega esta clase para manejar los datos de los residuos
 
 class WasteListScreen extends StatefulWidget {
   const WasteListScreen({super.key, required this.username});
@@ -21,6 +20,7 @@ class _WasteListScreenState extends State<WasteListScreen> {
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 238, 241, 240),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
@@ -35,7 +35,7 @@ class _WasteListScreenState extends State<WasteListScreen> {
       ),
       body: Stack(
         children: [
-          WasteListBody(products: products),
+          WasteListBody(products: products, name: widget.username),
           Align(
             alignment: Alignment.bottomRight,
             child: Padding(
@@ -74,8 +74,8 @@ class _WasteListScreenState extends State<WasteListScreen> {
 
 class WasteListBody extends StatelessWidget {
   final List<Producto> products;
-
-  const WasteListBody({super.key, required this.products});
+  final String name;
+  const WasteListBody({super.key, required this.products, required this.name});
 
   @override
   Widget build(BuildContext context) {
@@ -84,26 +84,80 @@ class WasteListBody extends StatelessWidget {
       child: Column(
         children: [
           Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Color(0xFFD1C6B9),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    SizedBox(height: 16),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: products.length,
-                        itemBuilder:
-                            (context, index) =>
-                                WasteItemCard(product: products[index]),
-                      ),
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  SizedBox(height: 16),
+                  Expanded(
+                    child: StreamBuilder<QuerySnapshot>(
+                      stream:
+                          FirebaseFirestore.instance
+                              .collection('productos')
+                              .where('nombreDelVendedor', isEqualTo: name)
+                              .snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        }
+            
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Expanded(child: Center(child: CircularProgressIndicator()));
+                        }
+                        if(snapshot.data == null || snapshot.data!.docs.isEmpty) {
+                          return Expanded(
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text("Stock vacío", style: TextStyle(
+                                    fontSize: 24,
+                                    fontFamily: 'DoppioOne',
+                                    color: Colors.black87,
+                                  ),),
+                                  Text(
+                                    'Para comezar a agregar residuos, presiona el botón de agregar.',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(fontSize: 18),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+            
+                        final productos =
+                            snapshot.data!.docs.map((doc) {
+                              final data = doc.data() as Map<String, dynamic>;
+                              return Producto(
+                                categoria: data['categoria'] ?? '',
+                                nombre: data['nombre'] ?? '',
+                                descripcion: data['descripcion'] ?? '',
+                                direccion: data['direccion'] ?? '',
+                                nombreDelVendedor:
+                                    data['nombreDelVendedor'] ?? '',
+                                cantidad: (data['cantidad'] ?? 0).toInt(),
+                                ingreso:
+                                    (data['ingreso'] as Timestamp).toDate(),
+                                expiracion:
+                                    (data['expiracion'] as Timestamp)
+                                        .toDate(),
+                                precio: (data['precio'] ?? 0.0).toDouble(),
+                              );
+                            }).toList();
+            
+                        return ListView.builder(
+                          itemCount: productos.length,
+                          itemBuilder:
+                              (context, index) =>
+                                  WasteItemCard(product: productos[index]),
+                        );
+                      },
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -136,14 +190,23 @@ class WasteItemCard extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
+                  "\$${product.precio}",
+                  style: TextStyle(color: Colors.black, fontSize: 20, fontFamily: 'DoppioOne',),
+                ),
+                Text(
                   product.nombre,
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                Text(
+                  "${product.cantidad} Kg",
+                  style: TextStyle(color: Colors.grey[600]),
                 ),
                 SizedBox(height: 8),
                 Text(
@@ -156,16 +219,11 @@ class WasteItemCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                "${product.ingreso.day}/${product.ingreso.month}/${product.ingreso.year}",
-                style: TextStyle(color: Colors.grey[600], fontSize: 12),
-              ),
-              SizedBox(height: 8),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   // ignore: deprecated_member_use
-                  color: Colors.cyan.withOpacity(0.2),
+                  color: product.categoria  == "Restos de café" ?  Colors.brown.withOpacity(0.2) : product.categoria == "Restos animales" ? Colors.red.withOpacity(0.2) : Colors.cyan.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -173,6 +231,24 @@ class WasteItemCard extends StatelessWidget {
                   style: TextStyle(color: Colors.cyan[800], fontSize: 12),
                 ),
               ),
+              SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Text(
+                  "${product.ingreso.day}/${product.ingreso.month}/${product.ingreso.year}",
+                  style: TextStyle(color: Colors.grey[600], fontSize: 15),
+                ),
+              ),
+              
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Text(
+                  "${product.expiracion.day}/${product.expiracion.month}/${product.expiracion.year}",
+                  style: TextStyle(color: Colors.red[600], fontSize: 15),
+                ),
+              ),
+              
+              
             ],
           ),
         ],
@@ -257,11 +333,11 @@ class WasteRegistrationScreen extends StatelessWidget {
                             : categoryController.text == 'Restos animales'
                             ? 330.0
                             : 0.0,
-                    direccion: await User("","").getUserDir(name),
+                    direccion: await User("", "").getUserDir(name),
                   ); // Tus parámetros actuales
 
                   await newProduct.sendToFirestore(); // Añade await aquí
-                  Navigator.pop(context, newProduct);
+                  Navigator.pop(context);
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Error al guardar: $e')),

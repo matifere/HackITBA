@@ -19,16 +19,10 @@ class CategorySelectionScreen extends StatelessWidget {
           style: TextStyle(
             color: Color.fromARGB(255, 0, 0, 0),
             fontSize: 24,
-            fontFamily: 'DoppioOne',
+            fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: false,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.info_outline, color: Colors.black),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: CategorySelectionBody(username: username,),
       bottomNavigationBar: CustomBottomNavBar(selectedIndex: 1, username: username,),
@@ -46,11 +40,13 @@ class CategorySelectionBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Hola $username!", style: TextStyle(
-            fontSize: 24,
-            fontFamily: 'DoppioOne',
-            color: Colors.black87,
-          ),),
+          Center(
+            child: Text("Hola $username!", style: TextStyle(
+              fontSize: 24,
+              fontFamily: 'DoppioOne',
+              color: Colors.black87,
+            ),),
+          ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(

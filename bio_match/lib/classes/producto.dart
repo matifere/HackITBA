@@ -85,7 +85,7 @@ class Producto {
 
   Future<void> sendToFirestore() async {
     try {
-      if (precio <= 0) throw Exception("Precio no válido");
+      if (precio < 0) throw Exception("Precio no válido");
 
       DocumentReference docRef = await FirebaseFirestore.instance
           .collection('productos')
