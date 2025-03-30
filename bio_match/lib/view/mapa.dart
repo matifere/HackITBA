@@ -28,9 +28,9 @@ class _MapaState extends State<Mapa> {
   final _debouncer = Debouncer(milliseconds: 500);
   String _sessionToken = const Uuid().v4();
   bool _isLoading = false;
+   final Map<String, (String, List<String>)> _ubicaciones = {};
 
   // Elige el color que quieras para los marcadores aquí
-  Color _markerColor = Colors.green;  // Puedes cambiar este valor
 
   static const String _placesApiKey = 'AIzaSyCmJaeIx_WlTXasB0MHULv6TGPYE5C4trY';
   static const String _placesBaseUrl =
@@ -90,21 +90,65 @@ class _MapaState extends State<Mapa> {
         if (data.containsKey('direccion')) {
           final String coordenadas = data['direccion'];
           final String categoria = data['categoria'];
+          
           try {
             LatLng position = _parseLatLng(coordenadas);
-
+            bool existe = _ubicaciones.containsKey(
+             data['direccion']);
+            if(!existe){
+                _ubicaciones[data['direccion']] = (data['nombreDelVendedor'], [data['nombre']]);
+            }
+            else{
+              final (existingVendedor, productos) = _ubicaciones[data['direccion']]!;
+            // Verificar si el producto ya existe antes de agregarlo
+            if (!productos.contains(data['nombre'])) {
+              _ubicaciones[data['direccion']] = (
+                existingVendedor,
+                [...productos, data['nombre']] // Agregar el producto solo si no está ya en la lista
+              );
+            }
+            ;
+            }
             setState(() {
               _markers.add(
                 Marker(
                   onTap: () {
-                    showAboutDialog(context: context, )
+                    final ubicacion = _ubicaciones[data['direccion']]; // Accede a la ubicación usando la dirección
+  
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: Text(ubicacion?.$1 ?? 'Vendedor no encontrado'),
+                        content: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Productos disponibles:',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                ubicacion?.$2.join('\n') ?? 'No hay productos disponibles',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ],
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text('Cerrar'),
+                          ),
+                        ],
+                      ),
+                    );
+                    print(_ubicaciones); // Imprime las ubicaciones en consola
                   },
                   markerId: MarkerId(doc.id),
                   position: position,
-                  infoWindow: InfoWindow(
-                    title: data['name'] ?? 'Producto sin nombre',
-                    snippet: data['descripcion'] ?? 'Sin descripción',
-                  ),
+                  
                   icon: BitmapDescriptor.defaultMarkerWithHue(
                       _getHueFromColor(categoria)),
                 ),
