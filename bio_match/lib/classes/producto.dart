@@ -97,16 +97,41 @@ class Producto {
     }
   }
 
-  void getFromFirestore(String nombreDelVendedor, String nombre) async {
-    //obtiene la referencia a un producto en la base de datos donde tiene el mismo nombre y vendedor
-    DocumentSnapshot snapshot = await FirebaseFirestore.instance
-        .collection('productos')
-        .where('nombreDelVendedor', isEqualTo: nombreDelVendedor)
-        .where('nombre', isEqualTo: nombre)
-        .get()
-        .then((value) {
-          return value.docs.first;
-        });
-    print(nombreDelVendedor);
+  factory Producto.fromFirestore(Map<String, dynamic> data) {
+    return Producto(
+      categoria: data['categoria'] as String,
+      nombre: data['nombre'] as String,
+      descripcion: data['descripcion'] as String,
+      direccion: data['direccion'] as String,
+      nombreDelVendedor: data['nombreDelVendedor'] as String,
+      cantidad: (data['cantidad'] as num).toInt(),
+      ingreso: (data['ingreso'] as Timestamp).toDate(),
+      expiracion: (data['expiracion'] as Timestamp).toDate(),
+      precio: (data['precio'] as num).toDouble(),
+    );
+  }
+
+  // Método estático para obtener producto
+  static Future<Producto> getFromFirestore(
+    String nombreDelVendedor,
+    String nombre,
+  ) async {
+    try {
+      final querySnapshot =
+          await FirebaseFirestore.instance
+              .collection('productos')
+              .where('nombreDelVendedor', isEqualTo: nombreDelVendedor)
+              .where('nombre', isEqualTo: nombre)
+              .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        throw Exception('Producto no encontrado');
+      }
+
+      return Producto.fromFirestore(querySnapshot.docs.first.data());
+    } catch (e) {
+      print('Error obteniendo producto: $e');
+      throw e;
+    }
   }
 }

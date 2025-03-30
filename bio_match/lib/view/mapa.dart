@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:bio_match/view/agregar_residuos.dart';
 import 'package:bio_match/view/notificaciones.dart';
+import 'package:bio_match/view/pantalla_pago.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -177,11 +178,18 @@ class _MapaState extends State<Mapa> {
                                     ),
                                   ),
                                   SizedBox(height: 8),
-                                  Text(
-                                    ubicacion?.$2.join('\n') ??
-                                        'No hay productos disponibles',
-                                    style: TextStyle(fontSize: 16),
-                                  ),
+                                  Column(
+                                    children: List.generate(ubicacion!.$2.length, (index)  => Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(ubicacion.$2[index]),
+                                        FilledButton(onPressed: (){
+                                          Navigator.of(context).push(MaterialPageRoute(builder: (context)=> PantallaPago(nombreProducto: ubicacion.$2[index], nombreDelVendedor: ubicacion.$1,)));
+                                        }, child: Text("Comprar"))
+                                      ],
+                                    )),
+                                  )
+                                  
                                 ],
                               ),
                             ),
