@@ -97,7 +97,7 @@ class _MapaState extends State<Mapa> {
               _markers.add(
                 Marker(
                   onTap: () {
-                    showAboutDialog(context: context, )
+
                   },
                   markerId: MarkerId(doc.id),
                   position: position,

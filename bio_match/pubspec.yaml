@@ -29,6 +29,8 @@ flutter:
   assets:
     - assets/images/trash.png
     - assets/images/hands.png
+    - assets/images/map.png
+    
   fonts:
     - family: DoppioOne
       fonts:
