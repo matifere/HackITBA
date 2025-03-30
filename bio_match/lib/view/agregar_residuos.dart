@@ -1,4 +1,5 @@
 import 'package:bio_match/classes/producto.dart';
+import 'package:bio_match/classes/user.dart';
 import 'package:bio_match/view/notificaciones.dart';
 import 'package:flutter/material.dart';
 
@@ -256,7 +257,7 @@ class WasteRegistrationScreen extends StatelessWidget {
                             : categoryController.text == 'Restos animales'
                             ? 330.0
                             : 0.0,
-                    direccion: 'una dire',
+                    direccion: await User("","").getUserDir(name),
                   ); // Tus parámetros actuales
 
                   await newProduct.sendToFirestore(); // Añade await aquí

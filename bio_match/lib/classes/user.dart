@@ -41,6 +41,16 @@ class User {
     return users;
   }
 
+  Future<String> getUserDir(String username) async {
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    DocumentSnapshot doc = await users.doc(username).get();
+    if (doc.exists) {
+      return doc['dir'];
+    } else {
+      throw Exception('User not found');
+    }
+  }
+
   Future<void> deleteUser(String username) async {
     CollectionReference users = FirebaseFirestore.instance.collection('users');
     await users.doc(username).delete();
