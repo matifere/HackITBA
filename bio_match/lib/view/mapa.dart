@@ -113,11 +113,7 @@ class _MapaState extends State<Mapa> {
               _markers.add(
                 Marker(
                   onTap: () {
-<<<<<<< HEAD
-
-=======
                     final ubicacion = _ubicaciones[data['direccion']]; // Accede a la ubicación usando la dirección
-  
                     showDialog(
                       context: context,
                       builder: (context) => AlertDialog(
@@ -128,6 +124,7 @@ class _MapaState extends State<Mapa> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
+                                ""
                                 'Productos disponibles:',
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
@@ -148,7 +145,6 @@ class _MapaState extends State<Mapa> {
                       ),
                     );
                     print(_ubicaciones); // Imprime las ubicaciones en consola
->>>>>>> 60c5382bb839f8b552663c1ccd92f759d0b9c820
                   },
                   markerId: MarkerId(doc.id),
                   position: position,
