@@ -11,28 +11,54 @@ class CategorySelectionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xFFF0EEF1), // Color del fondo general
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text(
-          'BioMatch',
-          style: TextStyle(
-            color: Color.fromARGB(255, 0, 0, 0),
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+    // ignore: deprecated_member_use
+    return WillPopScope(child: Scaffold(
+    backgroundColor: Color(0xFFF0EEF1), // Color del fondo general
+    appBar: AppBar(
+      automaticallyImplyLeading: false,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      title: Text(
+        'BioMatch',
+        style: TextStyle(
+          color: Color.fromARGB(255, 0, 0, 0),
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
         ),
-        centerTitle: false,
       ),
-      body: CategorySelectionBody(username: username),
-      bottomNavigationBar: CustomBottomNavBar(
-        selectedIndex: 1,
-        username: username,
+      centerTitle: false,
+    ),
+    body: CategorySelectionBody(username: username),
+    bottomNavigationBar: CustomBottomNavBar(
+      selectedIndex: 1,
+      username: username,
+    ),
+  ), onWillPop: ()async{return false;});
+  }
+
+  Scaffold newMethod() {
+    return Scaffold(
+    backgroundColor: Color(0xFFF0EEF1), // Color del fondo general
+    appBar: AppBar(
+      automaticallyImplyLeading: false,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      title: Text(
+        'BioMatch',
+        style: TextStyle(
+          color: Color.fromARGB(255, 0, 0, 0),
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+        ),
       ),
-    );
+      centerTitle: false,
+    ),
+    body: CategorySelectionBody(username: username),
+    bottomNavigationBar: CustomBottomNavBar(
+      selectedIndex: 1,
+      username: username,
+    ),
+  );
   }
 }
 
