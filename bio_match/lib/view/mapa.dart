@@ -185,6 +185,7 @@ class _MapaState extends State<Mapa> {
                                         Text(ubicacion.$2[index]),
                                         FilledButton(onPressed: (){
                                           Navigator.of(context).push(MaterialPageRoute(builder: (context)=> PantallaPago(nombreProducto: ubicacion.$2[index], nombreDelVendedor: ubicacion.$1,)));
+                                          Navigator.of(context).pop();
                                         }, child: Text("Comprar"))
                                       ],
                                     )),

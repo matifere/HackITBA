@@ -66,7 +66,10 @@ class PantallaPago extends StatelessWidget {
                       ),
                       IconButton(
                       iconSize: 100,
-                      onPressed: () {},
+                      onPressed: () {
+                        producto.deleteFromFirestore();
+                        Navigator.of(context).pop();
+                      },
                       icon: Icon(Icons.check),
                       style: ButtonStyle(
                         backgroundColor: WidgetStatePropertyAll<Color>(
