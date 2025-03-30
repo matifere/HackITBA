@@ -125,7 +125,7 @@ class WasteListBody extends StatelessWidget {
                                     ),
                                   ),
                                   Text(
-                                    'Para comezar a agregar residuos, presiona el botón de agregar.',
+                                    'Para comenzar a agregar residuos, presiona el botón de agregar.',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(fontSize: 18),
                                   ),

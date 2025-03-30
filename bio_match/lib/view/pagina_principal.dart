@@ -229,7 +229,7 @@ void showAnimalDialog(BuildContext context) {
                     }).toList();
 
                 return productos.isEmpty
-                    ? const Text('No hay productos de verduras')
+                    ? const Text('No hay productos de Restos Animales')
                     : SizedBox(
                       height: MediaQuery.of(context).size.height * 0.6,
                       child: ListView.builder(
@@ -292,7 +292,7 @@ void showCafeDialog(BuildContext context) {
                     }).toList();
 
                 return productos.isEmpty
-                    ? const Text('No hay productos de verduras')
+                    ? const Text('No hay productos de restos de café')
                     : SizedBox(
                       height: MediaQuery.of(context).size.height * 0.6,
                       child: ListView.builder(
