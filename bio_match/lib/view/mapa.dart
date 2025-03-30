@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:bio_match/view/agregar_residuos.dart';
 import 'package:bio_match/view/notificaciones.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -28,7 +29,7 @@ class _MapaState extends State<Mapa> {
   final _debouncer = Debouncer(milliseconds: 500);
   String _sessionToken = const Uuid().v4();
   bool _isLoading = false;
-   final Map<String, (String, List<String>)> _ubicaciones = {};
+  final Map<String, (String, List<String>)> _ubicaciones = {};
 
   // Elige el color que quieras para los marcadores aquí
 
@@ -47,15 +48,14 @@ class _MapaState extends State<Mapa> {
         .collection('productos')
         .snapshots() // Escucha en tiempo real
         .listen((snapshot) {
-      // Cuando hay un cambio, recargar los marcadores
-      _addProductMarkers();
-    });
+          // Cuando hay un cambio, recargar los marcadores
+          _addProductMarkers();
+        });
   }
 
   Future<List<Map<String, dynamic>>> obtenerProductos() async {
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection('productos')
-        .get();
+    QuerySnapshot querySnapshot =
+        await FirebaseFirestore.instance.collection('productos').get();
     return querySnapshot.docs
         .map((doc) => doc.data() as Map<String, dynamic>)
         .toList();
@@ -63,7 +63,9 @@ class _MapaState extends State<Mapa> {
 
   LatLng _parseLatLng(String coordenadas) {
     try {
-      String cleanStr = coordenadas.replaceAll('LatLng(', '').replaceAll(')', '');
+      String cleanStr = coordenadas
+          .replaceAll('LatLng(', '')
+          .replaceAll(')', '');
       List<String> partes = cleanStr.split(',');
       double lat = double.parse(partes[0].trim());
       double lng = double.parse(partes[1].trim());
@@ -76,9 +78,8 @@ class _MapaState extends State<Mapa> {
 
   Future<void> _addProductMarkers() async {
     try {
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('productos')
-          .get();
+      QuerySnapshot querySnapshot =
+          await FirebaseFirestore.instance.collection('productos').get();
 
       // Limpia los marcadores actuales antes de agregar los nuevos
       setState(() {
@@ -90,67 +91,116 @@ class _MapaState extends State<Mapa> {
         if (data.containsKey('direccion')) {
           final String coordenadas = data['direccion'];
           final String categoria = data['categoria'];
-          
+
           try {
             LatLng position = _parseLatLng(coordenadas);
-            bool existe = _ubicaciones.containsKey(
-             data['direccion']);
-            if(!existe){
-                _ubicaciones[data['direccion']] = (data['nombreDelVendedor'], [data['nombre']]);
-            }
-            else{
-              final (existingVendedor, productos) = _ubicaciones[data['direccion']]!;
-            // Verificar si el producto ya existe antes de agregarlo
-            if (!productos.contains(data['nombre'])) {
+            bool existe = _ubicaciones.containsKey(data['direccion']);
+            if (!existe) {
               _ubicaciones[data['direccion']] = (
-                existingVendedor,
-                [...productos, data['nombre']] // Agregar el producto solo si no está ya en la lista
+                data['nombreDelVendedor'],
+                [data['nombre']],
               );
-            }
-            ;
+            } else {
+              final (existingVendedor, productos) =
+                  _ubicaciones[data['direccion']]!;
+              // Verificar si el producto ya existe antes de agregarlo
+              if (!productos.contains(data['nombre'])) {
+                _ubicaciones[data['direccion']] = (
+                  existingVendedor,
+                  [
+                    ...productos,
+                    data['nombre'],
+                  ], // Agregar el producto solo si no está ya en la lista
+                );
+              }
+              ;
             }
             setState(() {
               _markers.add(
                 Marker(
-                  onTap: () {
-                    final ubicacion = _ubicaciones[data['direccion']]; // Accede a la ubicación usando la dirección
+                  onTap: () async {
+                    final (String, List<String>)? ubicacion =
+                        _ubicaciones[data['direccion']];
+                    final String coordenadas = data['direccion'];
+
+                    // Obtener dirección formateada
+                    final String direccion =
+                        await obtenerDireccionDesdeCoordenadas(coordenadas);
+
                     showDialog(
                       context: context,
-                      builder: (context) => AlertDialog(
-                        title: Text(ubicacion?.$1 ?? 'Vendedor no encontrado'),
-                        content: SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                ""
-                                'Productos disponibles:',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                      builder:
+                          (context) => AlertDialog(
+                            title: Text(
+                              ubicacion?.$1 ?? 'Vendedor no encontrado',
+                            ),
+                            content: SingleChildScrollView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // Sección de dirección
+                                  FutureBuilder<String>(
+                                    future: obtenerDireccionDesdeCoordenadas(
+                                      coordenadas,
+                                    ),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return Padding(
+                                          padding: EdgeInsets.only(bottom: 8),
+                                          child: LinearProgressIndicator(),
+                                        );
+                                      }
+                                      if (snapshot.hasError ||
+                                          !snapshot.hasData) {
+                                        return Text(
+                                          'Dirección no disponible',
+                                          style: TextStyle(color: Colors.grey),
+                                        );
+                                      }
+                                      return Text(
+                                        'Ubicación: ${snapshot.data!}',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.blueGrey,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    'Productos disponibles:',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    ubicacion?.$2.join('\n') ??
+                                        'No hay productos disponibles',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                ],
                               ),
-                              SizedBox(height: 8),
-                              Text(
-                                ubicacion?.$2.join('\n') ?? 'No hay productos disponibles',
-                                style: TextStyle(fontSize: 16),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text('Cerrar'),
                               ),
                             ],
                           ),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: Text('Cerrar'),
-                          ),
-                        ],
-                      ),
                     );
-                    print(_ubicaciones); // Imprime las ubicaciones en consola
+                    print(_ubicaciones);
                   },
                   markerId: MarkerId(doc.id),
                   position: position,
-                  
+
                   icon: BitmapDescriptor.defaultMarkerWithHue(
-                      _getHueFromColor(categoria)),
+                    _getHueFromColor(categoria),
+                  ),
                 ),
               );
             });
@@ -203,7 +253,8 @@ class _MapaState extends State<Mapa> {
           position: LatLng(position.latitude, position.longitude),
           infoWindow: const InfoWindow(title: "Tu posición actual"),
           icon: BitmapDescriptor.defaultMarkerWithHue(
-              _getHueFromColor("messi")),
+            _getHueFromColor("messi"),
+          ),
         ),
       );
     });
@@ -227,9 +278,12 @@ class _MapaState extends State<Mapa> {
   }
 
   Future<List<dynamic>> _fetchPlaces(String input) async {
-    final response = await http.get(Uri.parse(
+    final response = await http.get(
+      Uri.parse(
         '$_placesBaseUrl/autocomplete/json?'
-        'input=$input&key=$_placesApiKey&sessiontoken=$_sessionToken'));
+        'input=$input&key=$_placesApiKey&sessiontoken=$_sessionToken',
+      ),
+    );
 
     return jsonDecode(response.body)['predictions'] ?? [];
   }
@@ -246,7 +300,8 @@ class _MapaState extends State<Mapa> {
           position: latLng,
           infoWindow: InfoWindow(title: details['name']),
           icon: BitmapDescriptor.defaultMarkerWithHue(
-              _getHueFromColor("Verdura")),
+            _getHueFromColor("Verdura"),
+          ),
         ),
       );
     });
@@ -256,17 +311,20 @@ class _MapaState extends State<Mapa> {
   }
 
   Future<Map<String, dynamic>> _getPlaceDetails(String placeId) async {
-    final response = await http.get(Uri.parse(
+    final response = await http.get(
+      Uri.parse(
         '$_placesBaseUrl/details/json?'
-        'place_id=$placeId&key=$_placesApiKey'));
+        'place_id=$placeId&key=$_placesApiKey',
+      ),
+    );
 
     return jsonDecode(response.body)['result'];
   }
 
   void _showErrorSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -288,12 +346,14 @@ class _MapaState extends State<Mapa> {
               onMapCreated: (controller) => _mapController = controller,
             ),
             _buildSearchBar(),
-            if (_isLoading)
-              const Center(child: CircularProgressIndicator()),
+            if (_isLoading) const Center(child: CircularProgressIndicator()),
           ],
         ),
       ),
-      bottomNavigationBar: CustomBottomNavBar(selectedIndex: 0, username: widget.username),
+      bottomNavigationBar: CustomBottomNavBar(
+        selectedIndex: 0,
+        username: widget.username,
+      ),
       floatingActionButton: FloatingActionButton(
         tooltip: 'Mi ubicación',
         onPressed: _getUserLocation,
