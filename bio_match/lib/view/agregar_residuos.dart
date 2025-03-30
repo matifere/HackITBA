@@ -3,6 +3,7 @@ import 'package:bio_match/classes/user.dart';
 import 'package:bio_match/view/notificaciones.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 
 class WasteListScreen extends StatefulWidget {
   const WasteListScreen({super.key, required this.username});
@@ -100,23 +101,29 @@ class WasteListBody extends StatelessWidget {
                         if (snapshot.hasError) {
                           return Text('Error: ${snapshot.error}');
                         }
-            
+
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return Expanded(child: Center(child: CircularProgressIndicator()));
+                          return Expanded(
+                            child: Center(child: CircularProgressIndicator()),
+                          );
                         }
-                        if(snapshot.data == null || snapshot.data!.docs.isEmpty) {
+                        if (snapshot.data == null ||
+                            snapshot.data!.docs.isEmpty) {
                           return Expanded(
                             child: Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  Text("Stock vacío", style: TextStyle(
-                                    fontSize: 24,
-                                    fontFamily: 'DoppioOne',
-                                    color: Colors.black87,
-                                  ),),
+                                  Text(
+                                    "Stock vacío",
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontFamily: 'DoppioOne',
+                                      color: Colors.black87,
+                                    ),
+                                  ),
                                   Text(
                                     'Para comezar a agregar residuos, presiona el botón de agregar.',
                                     textAlign: TextAlign.center,
@@ -127,7 +134,7 @@ class WasteListBody extends StatelessWidget {
                             ),
                           );
                         }
-            
+
                         final productos =
                             snapshot.data!.docs.map((doc) {
                               final data = doc.data() as Map<String, dynamic>;
@@ -142,12 +149,11 @@ class WasteListBody extends StatelessWidget {
                                 ingreso:
                                     (data['ingreso'] as Timestamp).toDate(),
                                 expiracion:
-                                    (data['expiracion'] as Timestamp)
-                                        .toDate(),
+                                    (data['expiracion'] as Timestamp).toDate(),
                                 precio: (data['precio'] ?? 0.0).toDouble(),
                               );
                             }).toList();
-            
+
                         return ListView.builder(
                           itemCount: productos.length,
                           itemBuilder:
@@ -169,8 +175,12 @@ class WasteListBody extends StatelessWidget {
 
 class WasteItemCard extends StatelessWidget {
   final Producto product;
+  
+  WasteItemCard({super.key, required this.product});
 
-  const WasteItemCard({required this.product});
+  Future<String> _obtenerDireccion() async {
+    return await obtenerDireccionDesdeCoordenadas(product.direccion);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -198,7 +208,11 @@ class WasteItemCard extends StatelessWidget {
               children: [
                 Text(
                   "\$${product.precio}",
-                  style: TextStyle(color: Colors.black, fontSize: 20, fontFamily: 'DoppioOne',),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                    fontFamily: 'DoppioOne',
+                  ),
                 ),
                 Text(
                   product.nombre,
@@ -213,6 +227,26 @@ class WasteItemCard extends StatelessWidget {
                   product.descripcion,
                   style: TextStyle(color: Colors.grey[600]),
                 ),
+                FutureBuilder<String>(
+                future: _obtenerDireccion(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    );
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Dirección no disponible', 
+                             style: TextStyle(color: Colors.grey));
+                  }
+                  return Text(
+                    snapshot.data ?? 'Dirección no encontrada',
+                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                  );
+                },
+              ),
               ],
             ),
           ),
@@ -222,13 +256,23 @@ class WasteItemCard extends StatelessWidget {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  // ignore: deprecated_member_use
-                  color: product.categoria  == "Restos de café" ?  Colors.brown.withOpacity(0.2) : product.categoria == "Restos animales" ? Colors.red.withOpacity(0.2) : Colors.cyan.withOpacity(0.2),
+                  color: product.categoria == "Restos de café"
+                      ? Colors.brown.withOpacity(0.2)
+                      : product.categoria == "Restos animales"
+                          ? Colors.red.withOpacity(0.2)
+                          : Colors.cyan.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   product.categoria,
-                  style: TextStyle(color: Colors.cyan[800], fontSize: 12),
+                  style: TextStyle(
+                    color: product.categoria == "Restos de café"
+                        ? Colors.brown[800]
+                        : product.categoria == "Restos animales"
+                            ? Colors.red[800]
+                            : Colors.cyan[800],
+                    fontSize: 12,
+                  ),
                 ),
               ),
               SizedBox(height: 8),
@@ -239,7 +283,6 @@ class WasteItemCard extends StatelessWidget {
                   style: TextStyle(color: Colors.grey[600], fontSize: 15),
                 ),
               ),
-              
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Text(
@@ -247,7 +290,6 @@ class WasteItemCard extends StatelessWidget {
                   style: TextStyle(color: Colors.red[600], fontSize: 15),
                 ),
               ),
-              
               
             ],
           ),
@@ -328,11 +370,12 @@ class WasteRegistrationScreen extends StatelessWidget {
                     categoria: categoryController.text,
                     cantidad: int.tryParse(cantidadController.text) ?? 0,
                     precio: // Cambia esto por el valor real
-                        categoryController.text == 'Verduras'
+                        (categoryController.text == 'Verduras'
                             ? 596.0
                             : categoryController.text == 'Restos animales'
                             ? 330.0
-                            : 0.0,
+                            : 0.0) *
+                        int.parse(cantidadController.text),
                     direccion: await User("", "").getUserDir(name),
                   ); // Tus parámetros actuales
 
@@ -351,6 +394,59 @@ class WasteRegistrationScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<String> obtenerDireccionDesdeCoordenadas(String coordenadas) async {
+  try {
+    final regex = RegExp(r'[-]?[0-9]+\.?[0-9]*');
+    final matches = regex.allMatches(coordenadas);
+    
+    if (matches.length < 2) throw Exception('Formato de coordenadas inválido');
+    
+    final lat = double.parse(matches.elementAt(0).group(0)!);
+    final lon = double.parse(matches.elementAt(1).group(0)!);
+
+    final placemarks = await placemarkFromCoordinates(lat, lon);
+    if (placemarks.isEmpty) return 'Dirección no encontrada';
+    
+    final place = placemarks.first;
+    
+    // Componentes principales de la dirección abreviada
+    final street = '${place.street ?? ''} ${place.subThoroughfare ?? ''}'.trim();
+    final city = place.locality ?? place.subAdministrativeArea ?? '';
+    final country = place.country ?? '';
+    
+    // Acortar nombres comunes
+    String shortenedAddress = street;
+    
+    if (city.isNotEmpty) {
+      shortenedAddress += ', ${_abreviarNombreCiudad(city)}';
+    }
+    
+    if (country.isNotEmpty) {
+      shortenedAddress += ', $country';
+    }
+    
+    // Limitar longitud máxima
+    return shortenedAddress.length > 40 
+        ? '${shortenedAddress.substring(0, 37)}...' 
+        : shortenedAddress;
+    
+  } catch (e) {
+    print('Error obteniendo dirección: $e');
+    return 'Dirección no disponible';
+  }
+}
+
+String _abreviarNombreCiudad(String ciudad) {
+  final abreviaciones = {
+    'Ciudad Autónoma de Buenos Aires': 'CABA',
+    'Buenos Aires': 'BA',
+    'Capital Federal': 'CABA',
+    // Agregar más abreviaciones según necesidad
+  };
+  
+  return abreviaciones[ciudad] ?? ciudad;
 }
 
 // Mantén el resto de las clases (CustomBottomNavBar, WasteTableHeader) igual
